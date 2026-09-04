@@ -1,0 +1,17 @@
+{
+  "name": "razorpay-ai-native-os",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Razorpay AI-Native Merchant Operating System (Divided Frontend and Backend)",
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:ml": "./ml_service/venv/bin/python3 -m uvicorn ml_service.main:app --port 8000",
+    "dev:asme": "npm run dev --prefix asme-landing",
+    "start:backend": "npm run start --prefix backend",
+    "start:frontend": "npm run start --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "seed": "npm run prisma:seed --prefix backend"
+  }
+}

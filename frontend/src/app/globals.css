@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0B0B0A;
+    --surface: #121211;
+    --card: #151514;
+    --card-elevated: #1A1917;
+    --text-primary: #F2EEE5;
+    --text-secondary: #A5A198;
+    --text-muted: #706E68;
+    --gold: #B69A5A;
+    --gold-light: #D1B56A;
+    --gold-muted: rgba(182, 154, 90, 0.15);
+    --success: #66745D;
+    --warning: #9A7940;
+    --danger: #713B3B;
+    --burgundy: #5A1F28;
+    --border: rgba(242, 238, 229, 0.10);
+    --border-subtle: rgba(242, 238, 229, 0.05);
+
+    /* Backwards-compatibility mappings */
+    --color-primary: #B69A5A;
+    --color-on-primary: #0B0B0A;
+    --color-secondary: #1A1917;
+    --color-on-secondary: #F2EEE5;
+    --color-accent: #B69A5A;
+    --color-on-accent: #0B0B0A;
+    --color-background: #0B0B0A;
+    --color-foreground: #F2EEE5;
+    --color-card: #151514;
+    --color-card-foreground: #F2EEE5;
+    --color-muted: #1A1917;
+    --color-muted-foreground: #A5A198;
+    --color-border: rgba(242, 238, 229, 0.10);
+    --color-destructive: #713B3B;
+    --color-warning: #9A7940;
+    --color-success: #66745D;
+    --color-ring: #B69A5A;
+  }
+
+  body {
+    background-color: #0B0B0A;
+    color: #F2EEE5;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Force tabular lining numerals on numbers and monetary values */
+  .tabular-nums, .font-mono, [data-numeric="true"] {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+}
+
+/* Accessible restrained focus ring */
+:focus-visible {
+  outline: 1.5px solid #B69A5A;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Clean restrained financial micro scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0B0A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E1D1B;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2A2825;
+}
+
+/* Institutional Panels & Cards */
+.fin-panel, .glass-panel {
+  background-color: #121211;
+  border: 1px solid rgba(242, 238, 229, 0.10);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+}
+
+.fin-card, .glass-card {
+  background-color: #151514;
+  border: 1px solid rgba(242, 238, 229, 0.10);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fin-card:hover, .glass-card:hover {
+  border-color: rgba(242, 238, 229, 0.18);
+}
+
+.fin-card-elevated {
+  background-color: #1A1917;
+  border: 1px solid rgba(242, 238, 229, 0.12);
+  border-radius: 8px;
+}
+
+.control-card {
+  background-color: #151514;
+  border: 1px solid rgba(242, 238, 229, 0.10);
+  border-radius: 8px;
+}
+
+.control-card-subtle {
+  background-color: #121211;
+  border: 1px solid rgba(242, 238, 229, 0.06);
+  border-radius: 8px;
+}
+
+/* Restrained Pill / Capsule */
+.glass-pill, .fin-pill {
+  background-color: #1A1917;
+  border: 1px solid rgba(242, 238, 229, 0.10);
+  border-radius: 6px;
+  color: #A5A198;
+  font-size: 11px;
+  transition: all 0.15s ease;
+}
+
+.glass-pill:hover, .fin-pill:hover {
+  border-color: rgba(182, 154, 90, 0.35);
+  color: #F2EEE5;
+  background-color: #22201D;
+}
+
+/* Inputs */
+.glass-input, .fin-input {
+  background-color: #121211 !important;
+  border: 1px solid rgba(242, 238, 229, 0.10) !important;
+  border-radius: 8px;
+  color: #F2EEE5;
+  transition: border-color 0.15s ease;
+}
+
+.glass-input:focus, .fin-input:focus {
+  border-color: rgba(182, 154, 90, 0.50) !important;
+  outline: none;
+}
+
+/* Primary Gold Button */
+.btn-gold {
+  background-color: #B69A5A;
+  color: #0B0B0A;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-gold:hover {
+  background-color: #D1B56A;
+  transform: translateY(-1px);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: #1A1917;
+  border: 1px solid rgba(242, 238, 229, 0.12);
+  color: #F2EEE5;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(242, 238, 229, 0.25);
+  background-color: #22201D;
+  color: #FFFFFF;
+}
+
+/* Subtle Table Styling */
+.fin-table th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #706E68;
+  border-bottom: 1px solid rgba(242, 238, 229, 0.08);
+  padding: 0.65rem 0.85rem;
+}
+
+.fin-table td {
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid rgba(242, 238, 229, 0.04);
+  color: #F2EEE5;
+}
+
+.fin-table tr:hover td {
+  background-color: rgba(242, 238, 229, 0.02);
+}
+
+/* Legacy liquid-glass mapped to quiet institutional frame */
+.liquid-glass {
+  background-color: #151514;
+  border: 1px solid rgba(242, 238, 229, 0.10);
+  border-radius: 8px;
+}

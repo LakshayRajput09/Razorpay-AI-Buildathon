@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id             String          @id @default(cuid())
+  externalId     String          @unique
+  name           String
+  email          String
+  phone          String
+  signupDate     DateTime        @default(now())
+  segment        String          @default("NEW") // CHAMPIONS, LOYAL, AT_RISK, HIBERNATING, NEW, HIGH_VALUE
+  location       String          @default("Bengaluru, India")
+  accountAgeDays Int             @default(30)
+  totalSpend     Float           @default(0.0)
+  orderCount     Int             @default(0)
+  avgOrderValue  Float           @default(0.0)
+  riskTier       String          @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  rfmScore       String?         @default("333") // Recency-Frequency-Monetary (e.g. 555)
+  churnRisk      Float           @default(0.15)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  transactions   Transaction[]
+  orders         Order[]
+  subscriptions  Subscription[]
+  invoices       Invoice[]
+  returns        Return[]
+  chargebacks    Chargeback[]
+}
+
+model Transaction {
+  id                 String           @id @default(cuid())
+  transactionId      String           @unique
+  customerId         String
+  amount             Float
+  currency           String           @default("INR")
+  timestamp          DateTime         @default(now())
+  method             String           @default("UPI") // UPI, CARD, NETBANKING, WALLET, COD, EMI
+  status             String           @default("SUCCESS") // SUCCESS, FAILED, BLOCKED, REVIEW, REFUNDED
+  riskScore          Float            @default(12.5) // 0-100
+  riskTier           String           @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  deviceFingerprint  String?
+  ipAddress          String?
+  location           String?
+  velocityCount10m   Int              @default(1)
+  isInternational    Boolean          @default(false)
+  failureReason      String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  customer           Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  paymentAttempts    PaymentAttempt[]
+  chargebacks        Chargeback[]
+}
+
+model PaymentAttempt {
+  id             String       @id @default(cuid())
+  paymentId      String       @unique
+  transactionId  String?
+  customerId     String?
+  amount         Float
+  failureReason  String       // INSUFFICIENT_FUNDS, BANK_SERVER_DOWN, AUTH_TIMEOUT, CARD_EXPIRED, NETWORK_ERROR, INVALID_OTP
+  retryCount     Int          @default(0)
+  outcome        String       @default("FAILED") // FAILED, RECOVERED, ABANDONED, RETRY_SCHEDULED
+  paymentMethod  String       @default("UPI")
+  recoveryProb   Float        @default(0.5) // 0.0 - 1.0
+  expectedValue  Float        @default(0.0) // amount * recoveryProb
+  recommendedAction String?   // SMART_RETRY, PAYMENT_LINK, WHATSAPP_REMINDER, INCENTIVE_OFFER
+  lastRetryAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  transaction    Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+}
+
+model Order {
+  id                String    @id @default(cuid())
+  orderId           String    @unique
+  customerId        String
+  productId         String    @default("PROD-GENERIC")
+  productName       String    @default("Premium Merchandise")
+  productCategory   String    @default("Apparel")
+  amount            Float
+  orderDate         DateTime  @default(now())
+  fulfillmentStatus String    @default("DELIVERED") // PENDING, SHIPPED, DELIVERED, CANCELLED, RETURNED
+  isCod             Boolean   @default(false)
+  deliveryPincode   String    @default("560001")
+  returnRiskScore   Float     @default(0.1) // 0.0 - 1.0
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  customer          Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  returns           Return[]
+}
+
+model Return {
+  id                String    @id @default(cuid())
+  orderId           String
+  customerId        String
+  returnReason      String    // SIZE_FIT_ISSUE, DEFECTIVE_ITEM, BUYER_CHANGED_MIND, FRAUDULENT_CLAIM, LATE_DELIVERY
+  returnDate        DateTime  @default(now())
+  status            String    @default("REQUESTED") // REQUESTED, APPROVED, REJECTED, PREVENTED
+  preventedByAction Boolean   @default(false)
+  refundAmount      Float     @default(0.0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  order             Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customer          Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Chargeback {
+  id              String      @id @default(cuid())
+  chargebackId    String      @unique
+  transactionId   String
+  customerId      String
+  amount          Float
+  reason          String      // FRAUDULENT_TRANSACTION, GOODS_NOT_RECEIVED, NOT_AS_DESCRIBED, DUPLICATE_CHARGE
+  reasonCode      String      @default("10.4")
+  status          String      @default("RECEIVED") // RECEIVED, UNDER_REVIEW, REPRESENTMENT_SUBMITTED, WON, LOST
+  evidenceStatus  String      @default("PENDING") // PENDING, DRAFTED, SUBMITTED, ACCEPTED
+  evidenceSummary String?
+  dueDate         DateTime
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  transaction     Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  customer        Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id              String    @id @default(cuid())
+  subscriptionId  String    @unique
+  customerId      String
+  planName        String    // STARTER, PRO, ENTERPRISE
+  amount          Float
+  billingCycle    String    @default("MONTHLY") // MONTHLY, ANNUAL
+  renewalDate     DateTime
+  status          String    @default("ACTIVE") // ACTIVE, PAST_DUE, RETRYING, CANCELLED, RECOVERED
+  churnRisk       Float     @default(0.1)
+  failedAttempts  Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  customer        Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id            String    @id @default(cuid())
+  invoiceId     String    @unique
+  customerId    String
+  amount        Float
+  dueDate       DateTime
+  paidDate      DateTime?
+  status        String    @default("OVERDUE") // DRAFT, SENT, PAID, OVERDUE, RECOVERED, WRITTEN_OFF
+  agingDays     Int       @default(15)
+  reminderCount Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  customer      Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  expenseId   String    @unique
+  category    String    // PAYROLL, CLOUD_SERVERS, LOGISTICS_SHIPPING, MARKETING_ADS, GATEWAY_FEES, OFFICE_RENT
+  amount      Float
+  date        DateTime  @default(now())
+  isRecurring Boolean   @default(true)
+  vendor      String    @default("Vendor Corp")
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CashFlow {
+  id             String   @id @default(cuid())
+  date           DateTime @unique
+  inflow         Float    @default(0.0)
+  outflow        Float    @default(0.0)
+  netFlow        Float    @default(0.0)
+  closingBalance Float    @default(0.0)
+  forecasted     Boolean  @default(false)
+  confidenceLow  Float?
+  confidenceHigh Float?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AiPrediction {
+  id              String   @id @default(cuid())
+  entityId        String
+  entityType      String   // TRANSACTION, ORDER, PAYMENT, CUSTOMER, CASHFLOW
+  model           String   // FRAUD_XGBOOST, RTO_FOREST, RECOVERY_PROB, PURCHASE_RFM, CASHFLOW_TIMESERIES
+  prediction      Float
+  confidence      Float    @default(0.85)
+  features        String   // JSON string of input features
+  topFactors      String   // JSON string of SHAP/feature contributions
+  timestamp       DateTime @default(now())
+}
+
+model AgentAction {
+  id              String   @id @default(cuid())
+  agent           String   // GROWTH, RISK, RECOVERY, FINANCE, ORCHESTRATOR
+  action          String   // SMART_RETRY, SEND_PAYMENT_LINK, SEND_REMINDER, DISCOUNT_OFFER, BLOCK_TRANSACTION, FLAG_REVIEW, DRAFT_DISPUTE, SCENARIO_SIMULATION
+  entityId        String
+  reason          String
+  approval        String   @default("AUTO_APPROVED") // AUTO_APPROVED, PENDING_APPROVAL, APPROVED, REJECTED
+  requiresApproval Boolean @default(false)
+  status          String   @default("EXECUTED") // PROPOSED, EXECUTED, FAILED, CANCELLED
+  result          String?  // JSON string of execution outcome
+  riskTier        String   @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  financialImpact Float    @default(0.0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
