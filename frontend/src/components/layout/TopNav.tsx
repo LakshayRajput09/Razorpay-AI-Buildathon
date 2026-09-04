@@ -73,15 +73,16 @@ export function TopNav() {
         {/* Left: Brand Identity */}
         <div className="flex items-center gap-3">
           <Link
-            href="/command-center"
+            href="/"
             className="flex items-center gap-2 group cursor-pointer"
-            aria-label="Razorpay AI Home"
+            aria-label="Razorpay AI Landing Page"
+            title="Return to Landing Page"
           >
-            <div className="w-7 h-7 rounded bg-[#191918] border border-[#5A1F28] flex items-center justify-center shadow-sm">
+            <div className="w-7 h-7 rounded bg-[#191918] border border-[#5A1F28] flex items-center justify-center shadow-sm group-hover:border-[#B69A5A] transition-colors">
               <span className="font-serif text-[#B69A5A] text-xs font-bold">R</span>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="font-serif tracking-tight text-base font-bold text-[#F2EEE5]">
+              <span className="font-serif tracking-tight text-base font-bold text-[#F2EEE5] group-hover:text-[#B69A5A] transition-colors">
                 RAZORPAY AI
               </span>
               <span className="hidden lg:inline text-[10px] text-[#706E68] font-mono font-medium">

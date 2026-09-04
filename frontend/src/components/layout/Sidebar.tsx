@@ -95,13 +95,17 @@ export function Sidebar() {
       <div className="space-y-4">
         {/* Top Brand Block */}
         <div className="px-2.5 pt-1 pb-3 border-b border-[rgba(242,238,229,0.08)]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded bg-[#191918] border border-[#5A1F28] flex items-center justify-center shadow-sm">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group cursor-pointer"
+            title="Return to Landing Page"
+          >
+            <div className="w-7 h-7 rounded bg-[#191918] border border-[#5A1F28] flex items-center justify-center shadow-sm group-hover:border-[#B69A5A] transition-colors">
               <span className="font-serif text-[#B69A5A] text-xs font-bold">R</span>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-serif tracking-tight text-sm font-bold text-[#F2EEE5]">
+                <span className="font-serif tracking-tight text-sm font-bold text-[#F2EEE5] group-hover:text-[#B69A5A] transition-colors">
                   RAZORPAY AI
                 </span>
               </div>
@@ -109,7 +113,7 @@ export function Sidebar() {
                 AI-POWERED MERCHANT INTELLIGENCE
               </div>
             </div>
-          </div>
+          </Link>
           <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#191918] border border-[rgba(242,238,229,0.08)] text-[9px] font-mono text-[#A5A198]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B69A5A]" />
             <span>AI BUILDATHON 2026</span>
