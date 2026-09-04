@@ -21,7 +21,6 @@ import {
   ShieldCheck,
   Lock,
   Settings,
-  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +42,6 @@ const NAV_ITEMS: NavSection[] = [
     category: "COMMAND CENTER",
     items: [
       { label: "AI Command Center", href: "/command-center", icon: LayoutDashboard },
-      { label: "Landing Page", href: "/", icon: ArrowLeft },
     ],
   },
   {

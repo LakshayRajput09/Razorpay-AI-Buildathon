@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Landmark,
   ArrowRight,
-  ArrowLeft,
   CheckCircle2,
   Clock,
   AlertTriangle,
@@ -148,16 +147,7 @@ export default function CommandCenterPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#191918] hover:bg-[#222120] text-xs font-medium text-[#F2EEE5] border border-[rgba(242,238,229,0.14)] hover:border-[#B69A5A]/50 transition-all shadow-sm group cursor-pointer"
-            title="Return to Razorpay AI Landing Page"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 text-[#B69A5A] group-hover:-translate-x-0.5 transition-transform" />
-            <span>Landing Page</span>
-          </Link>
-
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#141413] border border-[rgba(242,238,229,0.08)] text-xs text-[#A5A198]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#66745D]" />
             <span className="text-[11px] font-sans text-[#F2EEE5]">Autonomous Safe Mode</span>
