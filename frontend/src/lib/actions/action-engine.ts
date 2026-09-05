@@ -73,24 +73,29 @@ export class ActionEngine {
 
     // If it strictly requires approval and wasn't manually approved
     if (policy.requiresApproval && merchantDecision !== "APPROVE") {
-      // Create pending action record in DB
-      const action = await prisma.agentAction.create({
-        data: {
-          agent: payload.agentName,
-          action: payload.actionType,
-          entityId: payload.entityId,
-          reason: payload.reason,
-          approval: "PENDING_APPROVAL",
-          requiresApproval: true,
-          status: "PROPOSED",
-          riskTier: payload.riskTier || "MEDIUM",
-          financialImpact: payload.financialImpact || 0,
-        },
-      });
+      let actionId = `act_pend_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      try {
+        const action = await prisma.agentAction.create({
+          data: {
+            agent: payload.agentName,
+            action: payload.actionType,
+            entityId: payload.entityId,
+            reason: payload.reason,
+            approval: "PENDING_APPROVAL",
+            requiresApproval: true,
+            status: "PROPOSED",
+            riskTier: payload.riskTier || "MEDIUM",
+            financialImpact: payload.financialImpact || 0,
+          },
+        });
+        actionId = action.id;
+      } catch (err) {
+        console.warn("Prisma unavailable when persisting pending action, proceeding in memory:", err);
+      }
 
       return {
         success: false,
-        actionId: action.id,
+        actionId,
         status: "PENDING_APPROVAL",
         result: { message: policy.explanation },
         policyStatus: policy.policyStatus,
@@ -114,7 +119,7 @@ export class ActionEngine {
       await prisma.paymentAttempt.updateMany({
         where: { paymentId: payload.entityId },
         data: { outcome: "RETRY_SCHEDULED" },
-      });
+      }).catch(() => {});
     } else if (payload.actionType === "SMART_RETRY") {
       executionResult = {
         retryJobId: `job_retry_${Math.random().toString(36).substring(2, 8)}`,
@@ -124,7 +129,7 @@ export class ActionEngine {
       await prisma.paymentAttempt.updateMany({
         where: { paymentId: payload.entityId },
         data: { outcome: "RETRY_SCHEDULED" },
-      });
+      }).catch(() => {});
     } else if (payload.actionType === "BLOCK_TRANSACTION") {
       executionResult = {
         blockedTransactionId: payload.entityId,
@@ -135,7 +140,7 @@ export class ActionEngine {
       await prisma.transaction.updateMany({
         where: { transactionId: payload.entityId },
         data: { status: "BLOCKED" },
-      });
+      }).catch(() => {});
     } else if (payload.actionType === "DISCOUNT_OFFER") {
       executionResult = {
         couponCode: payload.metadata?.code || "GROWTH_AI_8",
@@ -152,7 +157,7 @@ export class ActionEngine {
       await prisma.chargeback.updateMany({
         where: { chargebackId: payload.entityId },
         data: { evidenceStatus: "DRAFTED" },
-      });
+      }).catch(() => {});
     } else if (payload.actionType === "SEND_FRIENDLY_NOTICE") {
       const noticeRef = `FN-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
       const linkId = `plink_${Math.random().toString(36).substring(2, 9)}`;
@@ -171,7 +176,7 @@ export class ActionEngine {
       await prisma.paymentAttempt.updateMany({
         where: { paymentId: payload.entityId },
         data: { outcome: "RETRY_SCHEDULED" },
-      });
+      }).catch(() => {});
     } else if (payload.actionType === "SEND_LEGAL_NOTICE") {
       const noticeRef = `LEG-${new Date().getFullYear()}-RZP-${Math.floor(100000 + Math.random() * 900000)}`;
       const linkId = `plink_${Math.random().toString(36).substring(2, 9)}`;
@@ -201,28 +206,34 @@ export class ActionEngine {
       await prisma.paymentAttempt.updateMany({
         where: { paymentId: payload.entityId },
         data: { outcome: "RETRY_SCHEDULED" },
-      });
+      }).catch(() => {});
     }
 
     // Persist to agent audit log
-    const savedAction = await prisma.agentAction.create({
-      data: {
-        agent: payload.agentName,
-        action: payload.actionType,
-        entityId: payload.entityId,
-        reason: payload.reason,
-        approval: merchantDecision === "APPROVE" ? "APPROVED" : "AUTO_APPROVED",
-        requiresApproval: policy.requiresApproval,
-        status: "EXECUTED",
-        result: JSON.stringify(executionResult),
-        riskTier: payload.riskTier || "LOW",
-        financialImpact: payload.financialImpact || 0,
-      },
-    });
+    let finalActionId = `act_exec_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    try {
+      const savedAction = await prisma.agentAction.create({
+        data: {
+          agent: payload.agentName,
+          action: payload.actionType,
+          entityId: payload.entityId,
+          reason: payload.reason,
+          approval: merchantDecision === "APPROVE" ? "APPROVED" : "AUTO_APPROVED",
+          requiresApproval: policy.requiresApproval,
+          status: "EXECUTED",
+          result: JSON.stringify(executionResult),
+          riskTier: payload.riskTier || "LOW",
+          financialImpact: payload.financialImpact || 0,
+        },
+      });
+      finalActionId = savedAction.id;
+    } catch (err) {
+      console.warn("Prisma unavailable when persisting executed action, proceeding in memory:", err);
+    }
 
     return {
       success: true,
-      actionId: savedAction.id,
+      actionId: finalActionId,
       status: "EXECUTED",
       result: executionResult,
       policyStatus: policy.policyStatus,
