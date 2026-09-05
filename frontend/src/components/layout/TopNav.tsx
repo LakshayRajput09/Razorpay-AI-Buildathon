@@ -21,21 +21,18 @@ import {
   User,
   ShieldCheck,
   ArrowLeft,
+  Plus,
+  Building2,
 } from "lucide-react";
+import { useMerchant } from "@/context/MerchantContext";
 
 export function TopNav() {
   const router = useRouter();
-  const [selectedMerchant, setSelectedMerchant] = useState("Nova Apparel (D2C Lifestyle)");
+  const { merchants, selectedMerchant, setSelectedMerchant, setIsAddMerchantOpen } = useMerchant();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-
-  const merchants = [
-    { name: "Nova Apparel (D2C Lifestyle)", type: "D2C Brand • Bengaluru, KA", currency: "INR" },
-    { name: "CloudFlow India (B2B SaaS)", type: "SaaS Recurring • Mumbai, MH", currency: "INR" },
-    { name: "VoltMart Electronics", type: "High-Ticket Retail • Delhi, DL", currency: "INR" },
-  ];
 
   const quickNav = [
     { label: "AI Command Center", href: "/command-center", icon: Bot, category: "Autonomy" },
@@ -101,33 +98,56 @@ export function TopNav() {
             >
               <span className="text-[#706E68] text-[11px]">Merchant:</span>
               <div className="text-left">
-                <span className="font-medium text-[#F2EEE5] text-xs">Nova Apparel</span>
-                <span className="text-[10px] text-[#706E68] ml-1.5 font-sans">(D2C Lifestyle)</span>
+                <span className="font-medium text-[#F2EEE5] text-xs truncate max-w-[140px] inline-block align-bottom">
+                  {selectedMerchant.name}
+                </span>
+                <span className="text-[10px] text-[#706E68] ml-1.5 font-sans hidden md:inline">
+                  ({selectedMerchant.city})
+                </span>
               </div>
-              <ChevronDown className="h-3 w-3 text-[#706E68]" />
+              <ChevronDown className={`h-3 w-3 text-[#706E68] transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
             {dropdownOpen && (
-              <div className="absolute left-0 mt-1.5 w-64 rounded-md bg-[#141413] border border-[rgba(242,238,229,0.12)] p-1.5 shadow-2xl z-50">
-                <div className="px-2.5 py-1 text-[10px] uppercase tracking-wider text-[#706E68] font-semibold">
-                  Switch Merchant Entity
+              <div className="absolute left-0 mt-1.5 w-72 rounded-md bg-[#141413] border border-[rgba(242,238,229,0.14)] p-1.5 shadow-2xl z-50">
+                <div className="px-2.5 py-1 text-[10px] uppercase tracking-wider text-[#706E68] font-semibold flex items-center justify-between">
+                  <span>Switch Merchant Entity</span>
+                  <span className="text-[9px] font-mono text-[#B69A5A]">{merchants.length} Registered</span>
                 </div>
-                {merchants.map((m) => (
+                <div className="max-h-56 overflow-y-auto space-y-0.5 py-1">
+                  {merchants.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => {
+                        setSelectedMerchant(m);
+                        setDropdownOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between rounded px-2.5 py-1.5 text-left text-xs text-[#A5A198] hover:bg-[#191918] hover:text-[#F2EEE5] transition-colors cursor-pointer group"
+                    >
+                      <div className="min-w-0 pr-2">
+                        <div className="font-medium text-[#F2EEE5] group-hover:text-[#B69A5A] transition-colors truncate">
+                          {m.name}
+                        </div>
+                        <div className="text-[10px] text-[#706E68] truncate">{m.type}</div>
+                      </div>
+                      {selectedMerchant.id === m.id && <CheckCircle2 className="h-3.5 w-3.5 text-[#B69A5A] shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Option to Add New Merchant */}
+                <div className="border-t border-[rgba(242,238,229,0.08)] mt-1 pt-1">
                   <button
-                    key={m.name}
                     onClick={() => {
-                      setSelectedMerchant(m.name);
                       setDropdownOpen(false);
+                      setIsAddMerchantOpen(true);
                     }}
-                    className="flex w-full items-center justify-between rounded px-2.5 py-1.5 text-left text-xs text-[#A5A198] hover:bg-[#191918] hover:text-[#F2EEE5] transition-colors cursor-pointer"
+                    className="flex w-full items-center gap-2 rounded px-2.5 py-2 text-xs font-medium text-[#B69A5A] hover:bg-[#191918] hover:text-[#D1B56A] transition-colors cursor-pointer"
                   >
-                    <div>
-                      <div className="font-medium text-[#F2EEE5]">{m.name}</div>
-                      <div className="text-[10px] text-[#706E68]">{m.type}</div>
-                    </div>
-                    {selectedMerchant === m.name && <CheckCircle2 className="h-3.5 w-3.5 text-[#B69A5A]" />}
+                    <Plus className="h-3.5 w-3.5 text-[#B69A5A]" />
+                    <span>+ Add Merchant Entity</span>
                   </button>
-                ))}
+                </div>
               </div>
             )}
           </div>
@@ -205,8 +225,17 @@ export function TopNav() {
 
           {/* Merchant Profile Monogram */}
           <div className="flex items-center gap-2 pl-1 border-l border-[rgba(242,238,229,0.08)]">
-            <div className="h-7 w-7 rounded bg-[#191918] border border-[rgba(242,238,229,0.12)] flex items-center justify-center text-xs font-serif text-[#F2EEE5]">
-              NA
+            <div
+              className="h-7 w-7 rounded bg-[#191918] border border-[rgba(242,238,229,0.12)] flex items-center justify-center text-xs font-serif text-[#F2EEE5] font-bold"
+              title={`Active: ${selectedMerchant.name}`}
+            >
+              {selectedMerchant.name
+                .split(" ")
+                .filter(Boolean)
+                .map((w) => w[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase() || "RZ"}
             </div>
           </div>
         </div>

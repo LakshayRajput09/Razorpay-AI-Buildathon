@@ -10,9 +10,13 @@ import {
   Lock,
   FileText,
   AlertCircle,
+  Building2,
+  Plus,
 } from "lucide-react";
+import { useMerchant } from "@/context/MerchantContext";
 
 export default function SettingsPage() {
+  const { merchants, selectedMerchant, setSelectedMerchant, setIsAddMerchantOpen } = useMerchant();
   const [razorpayKey, setRazorpayKey] = useState("rzp_test_AiNativeDemoKey101");
   const [razorpaySecret, setRazorpaySecret] = useState("••••••••••••••••••••");
   const [llmProvider, setLlmProvider] = useState("anthropic");
@@ -46,6 +50,85 @@ export default function SettingsPage() {
           <span>System configuration parameters saved and reloaded successfully.</span>
         </div>
       )}
+
+      {/* Merchant Entities & Business Profiles */}
+      <div className="rounded-lg border border-[#F2EEE5]/10 bg-[#151514] p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F2EEE5]/08 pb-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[#F2EEE5]">
+            <Building2 className="w-4 h-4 text-[#B69A5A]" />
+            <span>Merchant Entities &amp; Business Profiles</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsAddMerchantOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#B69A5A] hover:bg-[#D1B56A] text-[#0B0B0A] text-xs font-semibold shadow-sm transition-all cursor-pointer self-start sm:self-auto"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Add Merchant Entity</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          {merchants.map((m) => {
+            const isSelected = selectedMerchant.id === m.id;
+            return (
+              <div
+                key={m.id}
+                className={`p-4 rounded-lg border transition-all ${
+                  isSelected
+                    ? "bg-[#191918] border-[#B69A5A] ring-1 ring-[#B69A5A]/30 shadow-md"
+                    : "bg-[#121211] border-[#F2EEE5]/08 hover:border-[#F2EEE5]/20"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-[#F2EEE5]">{m.name}</h4>
+                      {isSelected && (
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-[#B69A5A]/20 text-[#D1B56A] border border-[#B69A5A]/40 font-semibold">
+                          ACTIVE
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-[#A5A198] mt-0.5">{m.category || m.type}</p>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#66745D] bg-[#66745D]/15 px-2 py-0.5 rounded border border-[#66745D]/30">
+                    ● {m.status}
+                  </span>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-[rgba(242,238,229,0.06)] grid grid-cols-2 gap-2 text-[11px] text-[#706E68] font-mono">
+                  <div>
+                    <span className="text-[10px] text-[#55534E] block font-sans">Razorpay MID:</span>
+                    <span className="text-[#A5A198]">{m.mid}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#55534E] block font-sans">Monthly GMV:</span>
+                    <span className="text-[#A5A198]">{m.monthlyGmv || "₹25,00,000"}</span>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-[10px] text-[#706E68]">{m.city}</span>
+                  {!isSelected ? (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMerchant(m)}
+                      className="px-2.5 py-1 rounded text-[11px] font-medium text-[#B69A5A] hover:bg-[#191918] border border-[#B69A5A]/30 hover:border-[#B69A5A] transition-colors cursor-pointer"
+                    >
+                      Switch to this Merchant
+                    </button>
+                  ) : (
+                    <span className="text-[11px] text-[#B69A5A] font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-[#B69A5A]" /> Currently Selected
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Razorpay Integration Settings */}
       <div className="rounded-lg border border-[#F2EEE5]/10 bg-[#151514] p-5 space-y-4">

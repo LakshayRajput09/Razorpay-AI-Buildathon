@@ -4,6 +4,7 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import { TopNav } from "./TopNav";
 import { Sidebar } from "./Sidebar";
+import { AddMerchantModal } from "@/components/merchant/AddMerchantModal";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -11,11 +12,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isMarketing = pathname === "/" || pathname === "/landing" || pathname === "/login";
 
   if (isMarketing) {
-    return <main className="min-h-screen w-full bg-transparent">{children}</main>;
+    return (
+      <>
+        <AddMerchantModal />
+        <main className="min-h-screen w-full bg-transparent">{children}</main>
+      </>
+    );
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
+      <AddMerchantModal />
       <TopNav />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
