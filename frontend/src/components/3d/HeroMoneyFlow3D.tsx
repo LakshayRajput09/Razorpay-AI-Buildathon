@@ -21,23 +21,18 @@ function TransactionParticle({
   offset: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null!);
-  const [t, setT] = useState(offset);
+  const progressRef = useRef(offset);
 
   useFrame((_, delta) => {
-    let nextT = t + delta * speed;
-    if (nextT > 1) nextT = 0;
-    setT(nextT);
+    progressRef.current = (progressRef.current + delta * speed) % 1;
+    const curT = progressRef.current;
 
     if (meshRef.current) {
       // Quadratic Bezier interpolation: Origin -> Agent Node -> Guarded Settlement
-      const p0 = new THREE.Vector3(...startPoint);
-      const p1 = new THREE.Vector3(...agentPoint);
-      const p2 = new THREE.Vector3(...endPoint);
-
-      const oneMinusT = 1 - nextT;
-      const x = oneMinusT * oneMinusT * p0.x + 2 * oneMinusT * nextT * p1.x + nextT * nextT * p2.x;
-      const y = oneMinusT * oneMinusT * p0.y + 2 * oneMinusT * nextT * p1.y + nextT * nextT * p2.y;
-      const z = oneMinusT * oneMinusT * p0.z + 2 * oneMinusT * nextT * p1.z + nextT * nextT * p2.z;
+      const oneMinusT = 1 - curT;
+      const x = oneMinusT * oneMinusT * startPoint[0] + 2 * oneMinusT * curT * agentPoint[0] + curT * curT * endPoint[0];
+      const y = oneMinusT * oneMinusT * startPoint[1] + 2 * oneMinusT * curT * agentPoint[1] + curT * curT * endPoint[1];
+      const z = oneMinusT * oneMinusT * startPoint[2] + 2 * oneMinusT * curT * agentPoint[2] + curT * curT * endPoint[2];
 
       meshRef.current.position.set(x, y, z);
     }

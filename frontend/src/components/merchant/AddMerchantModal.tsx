@@ -62,18 +62,17 @@ export function AddMerchantModal() {
     }, 1800);
   };
 
-  if (!isAddMerchantOpen) return null;
-
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 16 }}
-          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-xl rounded-2xl bg-[#121211] border border-[rgba(242,238,229,0.14)] p-6 sm:p-7 shadow-2xl space-y-6 text-[#F2EEE5] relative"
-        >
+      {isAddMerchantOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 16 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-xl rounded-2xl bg-[#121211] border border-[rgba(242,238,229,0.14)] p-6 sm:p-7 shadow-2xl space-y-6 text-[#F2EEE5] relative"
+          >
           {/* Close button */}
           <button
             onClick={() => setIsAddMerchantOpen(false)}
@@ -223,6 +222,7 @@ export function AddMerchantModal() {
           )}
         </motion.div>
       </div>
+      )}
     </AnimatePresence>
   );
 }
